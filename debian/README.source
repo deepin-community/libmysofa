@@ -1,0 +1,9 @@
+libmysofa for Debian
+-------------------
+
+The sources have been repacked to exclude non-DFSG-free data files and pre-built
+windows binaries.
+
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Thu, 29 Jun 2017 17:27:16 +0200
+

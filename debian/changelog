@@ -1,0 +1,143 @@
+libmysofa (1.2.1~dfsg0-1) unstable; urgency=medium
+
+  * New upstream version 1.2.1~dfsg0
+    * Refresh patches
+  * Patch to use 'command -v' instead of 'which'
+  * Bump standards version to 4.6.0
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Tue, 16 Nov 2021 12:33:49 +0100
+
+libmysofa (1.2~dfsg0-1) unstable; urgency=medium
+
+  * New upstream version 1.2~dfsg0
+    * Refresh patches
+  * Regenerate d/copyright_hints
+  * Bump standards version to 4.5.1
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Sat, 30 Jan 2021 00:03:30 +0100
+
+libmysofa (1.1~dfsg1-1) unstable; urgency=medium
+
+  * New upstream version 1.1~dfsg1
+    * Drop patches applied upstream
+    * Refresh patches
+  * Exclude tests/H20*.sofa (non-commercial license)
+  * Declare patch as not forwardable
+  * Install default sofa-file
+  * Install pkg-config script
+  * Disable profiling information
+  * Add Build-Depends-Package information to symbols file
+  * Fix autopkgtest by running the appropriate compare scripts
+  * Drop B-D on "dh-exec" (obsoleted by dh>=13)
+  * Fix paths in d/copyright
+  * Regenerate d/copyright_hints
+  * Bump dh-compat to 13
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Mon, 19 Oct 2020 09:49:11 +0200
+
+libmysofa (1.0~dfsg0-2) unstable; urgency=medium
+
+  * Add patch to ensure that mysofa-utils use the shared library
+  * Add autopkgtest
+    * Add patch to make upstream scripts usable by autopkgtests
+    * autopkgtest depends on nodejs
+  * Make build more reproducible with "+fixfilepath"
+  * Add patch to fix mysofa2json's export with custom variables
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Sun, 01 Mar 2020 20:57:02 +0100
+
+libmysofa (1.0~dfsg0-1) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Mon, 10 Feb 2020 22:01:08 +0100
+
+libmysofa (1.0~dfsg0-1~exp1) experimental; urgency=medium
+
+  * New upstream version 1.0~dfsg0
+    * Fixes CVE-2020-6860 (Closes: #949325)
+    * Bump soname to libmysofa1
+    * Regenerate d/copyright_hints
+  * Add salsa CI configuration
+  * Bump standards-version to 4.5.0
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Thu, 06 Feb 2020 14:58:58 +0100
+
+libmysofa (0.9.1~dfsg0-1) unstable; urgency=medium
+
+  * New upstream version 0.9.1~dfsg0
+    * Regenerate d/copyright_hints
+  * Update filenamemangling in d/watch
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Wed, 08 Jan 2020 14:03:06 +0100
+
+libmysofa (0.9~dfsg0-1) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * Bump Standards-Version to 4.4.1
+
+  [ IOhannes m zmölnig ]
+  * New upstream version 0.9~dfsg0
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Sat, 07 Dec 2019 22:37:08 +0100
+
+libmysofa (0.8~dfsg0-1) unstable; urgency=high
+
+  * New upstream version 0.8~dfsg0
+    * Closes: #939735
+      - CVE-2019-16091
+      - CVE-2019-16092
+      - CVE-2019-16093
+      - CVE-2019-16094
+      - CVE-2019-16095
+  * Add new symbols to d/libmysofa0.symbols
+  * Refresh d/copyright
+    * Add licensecheck target to d/rules
+    * Regenerate d/copyright_hints
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Tue, 17 Sep 2019 10:42:42 +0200
+
+libmysofa (0.7~dfsg0-1) unstable; urgency=medium
+
+  * New upstream version 0.7~dfsg0
+
+  [ Ondřej Nový ]
+  * Use debhelper-compat instead of debian/compat
+
+  [ IOhannes m zmölnig ]
+  * Drop patches applied upstream
+  * Install library files from ${DEB_HOST_MULTIARCH}
+  * Add new libmysofa0 symbols
+  * State that building this package does not require root powers
+  * Drop obsolete d/source/local-options
+  * Bump dh compat to 12
+  * Bumped standards to 4.4.0
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Tue, 20 Aug 2019 15:47:39 +0200
+
+libmysofa (0.6~dfsg0-3) unstable; urgency=medium
+
+  [ IOhannes m zmölnig ]
+  * Backport fix for CVE-2019-10672 (Closes: #926125)
+
+  [ Ondřej Nový ]
+  * d/control: Set Vcs-* to salsa.debian.org
+
+  [ Felipe Sateler ]
+  * Change maintainer address to debian-multimedia@lists.debian.org
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Mon, 01 Apr 2019 23:25:15 +0200
+
+libmysofa (0.6~dfsg0-2) unstable; urgency=medium
+
+  * Set Multi-Arch:same (Closes: #882230)
+  * Fixed Vcs-Git stanza
+  * Bumped standards veresion to 4.1.1
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Mon, 20 Nov 2017 15:43:42 +0100
+
+libmysofa (0.6~dfsg0-1) unstable; urgency=medium
+
+  * Initial release (Closes: #865419)
+
+ -- IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>  Thu, 20 Jul 2017 22:12:40 +0200

@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+# See debhelper(7) (uncomment to enable)
+# output every command that modifies files on the build system.
+#export DH_VERBOSE = 1
+
+# see FEATURE AREAS in dpkg-buildflags(1)
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all reproducible=+fixfilepath
+
+# see ENVIRONMENT in dpkg-buildflags(1)
+# package maintainers to append CFLAGS
+export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
+# package maintainers to append LDFLAGS
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-DCMAKE_LIBRARY_PATH=$(DEB_HOST_MULTIARCH) \
+		-DCODE_COVERAGE=OFF \
+		$(empty)
+
+override_dh_auto_test:
+	# tests have been disabled, until we figure out how to make them not stall
+	@echo "skipping tests"
+
+override_dh_clean:
+	dh_clean
+	rm -f easy.tmp.json
+	rm -f src/config.h src/hrtf/mysofa_export.h
+
+licensecheck:
+	licensecheck --deb-machine -r * \
+		> debian/copyright_newhints
+	cmp debian/copyright_hints debian/copyright_newhints \
+		&& rm debian/copyright_newhints

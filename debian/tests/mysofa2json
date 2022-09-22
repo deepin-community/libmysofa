@@ -1,0 +1,40 @@
+#!/bin/sh
+
+export MYSOFA2JSON=mysofa2json
+
+ext="json.bz2"
+
+res=0
+
+comparator() {
+    # urgh, some files need the compareIgnoreNew script, others use the normal compare script
+    # upstream hardcodes this in CMakeLists.txt
+    case "$1" in
+        H20_44K_16bit_256tap_FIR_SOFA)
+            echo "./tests/compareIgnoreNew.sh"
+            ;;
+        MIT_KEMAR_normal_pinna)
+            echo "./tests/compareIgnoreNew.sh"
+            ;;
+        dtf_nh2)
+            echo "./tests/compareIgnoreNew.sh"
+            ;;
+        hrtf_c_nh898)
+            echo "./tests/compareIgnoreNew.sh"
+            ;;
+        *)
+            echo "./tests/compare.sh"
+            ;;
+    esac
+}
+
+for f in tests/*".${ext}"; do
+  x=${f%.${ext}}
+  compare=$(comparator "${x##*/}")
+  echo "============== ${compare} ${x} ================="
+  if ! "${compare}" "${x}"; then
+    res=1
+  fi
+done
+
+exit ${res}
