@@ -1,2 +1,2 @@
 dynamically-link-tools.patch
-drop_which.patch
+debian_ignore_tests.patch

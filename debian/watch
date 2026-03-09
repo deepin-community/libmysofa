@@ -4,7 +4,7 @@ version=4
 
 # GitHub hosted projects
 opts=dversionmangle=auto,\
-	oversionmangle=s/$/~dfsg0/,\
+	repacksuffix=+dfsg,\
 	filenamemangle=s%(?:.*?)?v?(\d[\d.]*)\.tar\.gz%@PACKAGE@-$1.tar.gz% \
    https://github.com/hoene/libmysofa/tags \
    (?:.*?/)?v?(\d[\d.]*)\.tar\.gz debian uupdate

@@ -58,11 +58,6 @@ MYSOFA_EXPORT int mysofa_check(struct MYSOFA_HRTF *hrtf) {
       !verifyAttribute(hrtf->attributes, "DataType", "FIR"))
     return MYSOFA_INVALID_ATTRIBUTES; // LCOV_EXCL_LINE
 
-  if (!verifyAttribute(hrtf->attributes, "RoomType", "free field") &&
-      !verifyAttribute(hrtf->attributes, "RoomType", "reverberant") &&
-      !verifyAttribute(hrtf->attributes, "RoomType", "shoebox"))
-    return MYSOFA_INVALID_ATTRIBUTES; // LCOV_EXCL_LINE
-
   /*==============================================================================
    dimensions
    ==============================================================================
@@ -136,7 +131,7 @@ MYSOFA_EXPORT int mysofa_check(struct MYSOFA_HRTF *hrtf) {
   }
   /* TODO: Support different sampling rate per measurement, support default
    sampling rate of 48000 However, so far, I have not seen any sofa files with
-   an format other and I */
+   a format other then I */
   if (!verifyAttribute(hrtf->DataSamplingRate.attributes, "DIMENSION_LIST",
                        "I"))
     return MYSOFA_ONLY_THE_SAME_SAMPLING_RATE_SUPPORTED; // LCOV_EXCL_LINE
@@ -146,7 +141,10 @@ MYSOFA_EXPORT int mysofa_check(struct MYSOFA_HRTF *hrtf) {
     // do nothing
   } else if (verifyAttribute(hrtf->ReceiverPosition.attributes,
                              "DIMENSION_LIST", "R,C,M")) {
-    for (int i = 0; i < 6; i++) {
+    if (hrtf->ReceiverPosition.elements != hrtf->C * hrtf->R * hrtf->M)
+      return MYSOFA_INVALID_RECEIVER_POSITIONS;
+
+    for (int i = 0; i < hrtf->C * hrtf->R; i++) {
       int offset = i * hrtf->M;
       double receiverPosition = hrtf->ReceiverPosition.values[offset];
       for (int j = 1; j < hrtf->M; j++)
@@ -161,15 +159,16 @@ MYSOFA_EXPORT int mysofa_check(struct MYSOFA_HRTF *hrtf) {
   if (!verifyAttribute(hrtf->ReceiverPosition.attributes, "Type", "cartesian"))
     return MYSOFA_RECEIVERS_WITH_CARTESIAN_SUPPORTED; // LCOV_EXCL_LINE
 
-  if (hrtf->ReceiverPosition.elements < 6 ||
-      !fequals(hrtf->ReceiverPosition.values[0], 0.f) ||
-      !fequals(hrtf->ReceiverPosition.values[2], 0.f) ||
-      !fequals(hrtf->ReceiverPosition.values[3], 0.f) ||
-      !fequals(hrtf->ReceiverPosition.values[5], 0.f)) {
+  if (hrtf->ReceiverPosition.elements < hrtf->C * hrtf->R ||
+      fabs(hrtf->ReceiverPosition.values[0]) >= 0.02f || // we assumes a somehow symetrical face
+      fabs(hrtf->ReceiverPosition.values[2]) >= 0.02f ||
+      fabs(hrtf->ReceiverPosition.values[3]) >= 0.02f ||
+      fabs(hrtf->ReceiverPosition.values[5]) >= 0.02f)
+  {
     return MYSOFA_INVALID_RECEIVER_POSITIONS; // LCOV_EXCL_LINE
   }
-  if (!fequals(hrtf->ReceiverPosition.values[4],
-               -hrtf->ReceiverPosition.values[1]))
+  if (fabs(hrtf->ReceiverPosition.values[4] +
+           hrtf->ReceiverPosition.values[1]) >= 0.02f)
     return MYSOFA_INVALID_RECEIVER_POSITIONS; // LCOV_EXCL_LINE
   if (hrtf->ReceiverPosition.values[1] < 0) {
     if (!verifyAttribute(hrtf->attributes, "APIName",

@@ -1,16 +1,7 @@
-macro(use_c99)
-  if(CMAKE_VERSION VERSION_LESS "3.1")
-    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-      set(CMAKE_C_FLAGS "--std=gnu99 -pedantic ${CMAKE_C_FLAGS}")
-    endif()
-  else()
-    set(CMAKE_C_STANDARD 99)
-  endif()
-endmacro(use_c99)
+set(CMAKE_C_STANDARD 99)
 
-use_c99()
-
-configure_file(config.h.in ${PROJECT_SOURCE_DIR}/src/config.h)
+configure_file(config.h.in config.h)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if(NOT MSVC)
   if(NOT WIN32)
@@ -75,14 +66,29 @@ set(libsrc
     hrtf/easy.c
     hrtf/cache.c
     resampler/speex_resampler.c)
+
+set(public-headers
+    hrtf/mysofa.h
+)
+
 if(BUILD_STATIC_LIBS)
 add_library(mysofa-static STATIC ${libsrc})
+target_include_directories(mysofa-static
+  PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/hrtf>"
+  $<INSTALL_INTERFACE:include/>
+)
 target_link_libraries(mysofa-static LINK_PRIVATE ${MATH} ${ZLIB_LIBRARIES})
 set_target_properties(
   mysofa-static
   PROPERTIES OUTPUT_NAME mysofa CLEAN_DIRECT_OUTPUT 1 POSITION_INDEPENDENT_CODE
-                                                      ON)
-install(TARGETS mysofa-static ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+                                                      ${BUILD_SHARED_LIBS})
+set_target_properties( mysofa-static PROPERTIES PUBLIC_HEADER "${public-headers}" )
+install(TARGETS mysofa-static
+  EXPORT mysofa_exports
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  )
 
   if(UNIX
      AND CODE_COVERAGE
@@ -99,9 +105,21 @@ endif()
 
 if(BUILD_SHARED_LIBS)
   add_library(mysofa-shared SHARED ${libsrc})
+  target_include_directories(mysofa-shared
+    PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/hrtf>"
+    $<INSTALL_INTERFACE:include/>
+  )
   target_link_libraries(mysofa-shared PRIVATE ${MATH} ${ZLIB_LIBRARIES})
   set_target_properties(mysofa-shared
                         PROPERTIES OUTPUT_NAME mysofa CLEAN_DIRECT_OUTPUT 1)
+  # Rename the Windows import library (stub) of the DLL to prevent a name clash
+  # with the mysofa-static library.
+  set_target_properties(mysofa-shared
+                        PROPERTIES ARCHIVE_OUTPUT_NAME mysofa_shared)
+  set_target_properties(mysofa-shared
+                        PROPERTIES PUBLIC_HEADER "${public-headers}")
+
   set_property(
     TARGET mysofa-shared
     PROPERTY
@@ -111,8 +129,12 @@ if(BUILD_SHARED_LIBS)
   set_property(TARGET mysofa-shared PROPERTY SOVERSION
                                              ${CPACK_PACKAGE_VERSION_MAJOR})
   set_property(TARGET mysofa-shared PROPERTY C_VISIBILITY_PRESET hidden)
-  generate_export_header(mysofa-shared BASE_NAME mysofa EXPORT_FILE_NAME
-                         ${PROJECT_SOURCE_DIR}/src/hrtf/mysofa_export.h)
+  generate_export_header(mysofa-shared
+    BASE_NAME MYSOFA
+    EXPORT_FILE_NAME mysofa_export.h
+    EXPORT_MACRO_NAME MYSOFA_EXPORT
+    STATIC_DEFINE MYSOFA_STATIC
+  )
 
   if(UNIX
      AND CODE_COVERAGE
@@ -128,15 +150,22 @@ if(BUILD_SHARED_LIBS)
 
   install(
     TARGETS mysofa-shared
+    EXPORT mysofa_exports
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  )
 else()
   generate_export_header(mysofa-static BASE_NAME mysofa EXPORT_FILE_NAME
-                         ${PROJECT_SOURCE_DIR}/src/hrtf/mysofa_export.h)
+                         mysofa_export.h)
 endif()
 
-install(FILES hrtf/mysofa.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+# Must install export header so downstream packages can properly understand 
+# which functions are accessible
+install(FILES ${PROJECT_BINARY_DIR}/src/mysofa_export.h
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  )
 
 if(BUILD_TESTS)
   add_executable(mysofa2json tests/sofa2json.c tests/json.c)
@@ -150,6 +179,7 @@ if(BUILD_TESTS)
     external
     tests/external.c
     tests/check.c
+    tests/check_data.c
     tests/lookup.c
     tests/neighbors.c
     tests/interpolate.c
