@@ -1,2 +1,5 @@
-Tests: mysofa2json
-Depends: @, nodejs
+Tests:
+ mysofa2json,
+Depends:
+ nodejs,
+ @,

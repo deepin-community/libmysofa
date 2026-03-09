@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 project(libmysofa C CXX)
 
 include(CheckCCompilerFlag)
@@ -19,8 +19,8 @@ set(CPACK_PACKAGE_CONTACT "umlaeute@debian.org")
 set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "IOhannes m zmölnig")
 set(CPACK_PACKAGE_VERSION_MAJOR "1")
-set(CPACK_PACKAGE_VERSION_MINOR "1")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_VERSION_MINOR "3")
+set(CPACK_PACKAGE_VERSION_PATCH "3")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "zlib1g")
 
 set(PKG_CONFIG_PRIVATELIBS "")
@@ -53,7 +53,11 @@ if(BUILD_TESTS)
 
   enable_testing()
 
-  add_test(D1_48K_24bit_0.3s_FIR_SOFA src/mysofa2json
+  add_test(Mesh2HRTF src/mysofa2json -c -o tmp.json
+           ${PROJECT_SOURCE_DIR}/tests/Mesh2HRTF.sofa)
+  add_test(latTestAziBeRTA_Resamp1_Fran src/mysofa2json -c -o tmp.json
+           ${PROJECT_SOURCE_DIR}/tests/latTestAziBeRTA_Resamp1_Fran.sofa)
+  add_test(D1_48K_24bit_0.3s_FIR_SOFA src/mysofa2json -o tmp.json
            ${PROJECT_SOURCE_DIR}/tests/D1_48K_24bit_0.3s_FIR_SOFA.sofa)
   add_test(H20_44K_16bit_256tap_FIR_SOFA ${PROJECT_SOURCE_DIR}/tests/compareIgnoreNew.sh
            ${PROJECT_SOURCE_DIR}/tests/H20_44K_16bit_256tap_FIR_SOFA)
@@ -84,7 +88,13 @@ if(BUILD_TESTS)
     137
     138
     156
-    163)
+    163
+    167a
+    167b
+    168
+    171
+    173
+)
     # issues with osx    96)
     add_test(fail-issue-${ISSUE} ${PROJECT_SOURCE_DIR}/tests/notcrashed.sh
              ${PROJECT_SOURCE_DIR}/tests/fail-issue-${ISSUE})
@@ -116,3 +126,38 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/libmysofa.pc.cmake"
                "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc" @ONLY)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+
+# Install exported targets as config files for use from install tree
+install(EXPORT mysofa_exports
+  NAMESPACE mysofa::
+  FILE mysofaTargets.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mysofa
+)
+
+# Create a target export file for use from the build tree.
+export(EXPORT mysofa_exports
+  NAMESPACE mysofa::
+  FILE ${CMAKE_CURRENT_BINARY_DIR}/mysofaTargets.cmake
+)
+
+include(CMakePackageConfigHelpers)
+
+# Configure package config file
+configure_package_config_file(mysofaConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/mysofaConfig.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mysofa
+)
+
+# Create package version file
+# Assuming major version bump = breaking API changes
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/mysofaConfigVersion.cmake
+  VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}
+  COMPATIBILITY SameMajorVersion)
+
+# Install package config file for use from install tree
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/mysofaConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/mysofaConfigVersion.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mysofa
+)

@@ -15,11 +15,12 @@ stored according to the AES69-2015 standard [http://www.aes.org/publications/sta
 ## Badges
 
 <div align="center">
-<a href="https://travis-ci.org/hoene/libmysofa">
-<img alt="Travis CI Status" src="https://travis-ci.org/hoene/libmysofa.svg?branch=master"/>
+
+<a href="https://repology.org/project/libmysofa/versions">
+<img alt="Packaging status" src="https://repology.org/badge/tiny-repos/libmysofa.svg"/>
 </a>
 <a href="https://ci.appveyor.com/project/hoene/libmysofa-s142k">
-<img alt="AppVeyor Status" src="https://ci.appveyor.com/api/projects/status/mk86lx4ux2jn9tpo/branch/master?svg=true"/>
+<img alt="AppVeyor Status" src="https://ci.appveyor.com/api/projects/status/mk86lx4ux2jn9tpo/branch/main?svg=true"/>
 </a>
 <a href="https://scan.coverity.com/projects/hoene-libmysofa">
 <img alt="Coverity Scan Build Status" src="https://scan.coverity.com/projects/13030/badge.svg"/>
@@ -36,7 +37,7 @@ stored according to the AES69-2015 standard [http://www.aes.org/publications/sta
 
 On Ubuntu, to install the required components, enter
 
-> sudo apt install zlib1g-dev libcunit1-dev libcunit1-dev
+> sudo apt install zlib1g-dev libcunit1-dev libcunit1-dev git build-essential cmake nodejs
 
 Then, to compile enter following commands
 
@@ -44,7 +45,9 @@ Then, to compile enter following commands
 
 > cmake -DCMAKE_BUILD_TYPE=Debug ..
 
-> make all test
+> make -j8 all
+
+> ctest -j8
 
 If you need an Debian package, call
 
@@ -60,6 +63,22 @@ To check for memory leaks and crazy pointers
 
 > make all test
 
+### Installing
+
+Installing the library is an optional step that puts the libraries and header files into a platform-specific directory structure. This allows mysofa to be used by other projects, either using the standard directory layout of the platform or by using CMake's support for install trees.
+
+To install into the system location (e.g., `/usr/` on Linux), call
+
+> cmake install .
+
+This usually requires system administrator permissions (e.g., using `sudo`).
+
+To install to a non-system location, provide a prefix path when performing the cmake configure step:
+
+> cd build
+> cmake -DCMAKE_BUILD_TYPE=Debug .. -DCMAKE_INSTALL_PREFIX=<CMAKE_INSTALL_PREFIX>
+> make all test
+> cmake install .
 
 ## Usage
 
@@ -95,6 +114,15 @@ hrtf = mysofa_open_advanced("file.sofa", 48000, &filter_length, &err, norm, neig
 ```
 
 (The greater the neighbor_*_step, the faster the neighbors search. The algorithm will end up skipping true nearest neighbors if these values are set too high. To be define based on the will-be-imported sofa files grid step. Default mysofa_open method is usually fast enough for classical hrtf grids not to bother with the advanced one.)
+
+Or, if you have loaded your HRTF file into memory already, call, for example
+```
+char buffer[9] = "TESTDATA";
+int filter_length;
+int err;
+struct MYSOFA_EASY *hrtf = NULL;
+hrtf = mysofa_open_data(buffer, 9, 48000, &filter_length, &err);
+```
 
 To free the HRTF structure, call:
 ```
@@ -148,10 +176,43 @@ mysofa_cache_release_all();
 ```
 Then, all HRTFs having the same filename and sampling rate are stored only once in memory. If your program is using several threads, you must use appropriate synchronisation mechanisms so only a single thread can access the mysofa_open_cached and mysofa_close_cached functions at a given time.
 
+### Use libmysofa in CMake-based projects
+
+libmysofa can be imported and used as a Cmake target into other projects.
+For this, the CMake configuration of the consuming projects has to contain a statement
+
+```
+find_package( mysofa CONFIG [mysofa_version] [REQUIRED] )
+```
+
+After that, a statement
+
+```
+target_link_libraries( <target> [PRIVATE|PUBLIC] mysofa::mysofa-shared )
+```
+
+or
+
+```
+target_link_libraries( <target> [PRIVATE|PUBLIC] mysofa::mysofa-static )
+```
+
+ensures that the target `<target>` uses the respective variant of the mysofa library.
+
+In order for the `find_package` above command to work, three cases are possible:
+
+1. If mysofa has been installed to a system location, either using a package or using the `cmake install .` command introduced above, mysofa is automatically found by CMake.
+2. If mysofa has been installed to a non-system location using a `<CMAKE_INSTALL_PREFIX>` path, add the variable definition `-DCMAKE_PREFIX_PATH=<CMAKE_INSTALL_PREFIX>` to the CMake configure command of the consuming project.
+3. To use the mysofa libraries and header files of a mysofa build tree, add the variable definition `-Dmysofa_DIR=<MYSOFA_BUILD_DIRECTORY>`. When using the build instructions above, the build directory is the subdirectory `build` within the mysofa source directory.
+
 ## OS support
 
 Libmysofa compiles for Linux operating systems, OSX and Windows. By default, each commit is compiled with Travis CI under Ubuntu 14.04 and OSX 7.3 and with AppVeyor for Windows Visual Studio 2015 on a x64 system. In addition, FFmpeg is compiling libmysofa with MinGW under Windows using their own build system.
+To build it under in an big endian architecture, I use the following Docker environment on a x64 system:
 
+> docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+> docker run --rm -it s390x/ubuntu bash
 
 ## References
 

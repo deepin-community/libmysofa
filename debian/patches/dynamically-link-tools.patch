@@ -1,12 +1,18 @@
-Description: dynamically link mysofa tools
-Author: IOhannes m zmölnig
+From: Debian Multimedia Maintainers <debian-multimedia@lists.debian.org>
+Date: Mon, 20 Nov 2023 22:02:29 +0100
+Subject: dynamically link mysofa tools
+
 Forwarded: not-needed
 Last-Update: 2020-02-27
+
+Last-Update: 2020-02-27
 ---
-This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+ src/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 --- libmysofa.orig/src/CMakeLists.txt
 +++ libmysofa/src/CMakeLists.txt
-@@ -141,7 +141,7 @@
+@@ -170,7 +170,7 @@
  if(BUILD_TESTS)
    add_executable(mysofa2json tests/sofa2json.c tests/json.c)
    if(BUILD_STATIC_LIBS)

@@ -13,26 +13,37 @@ export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
 
+# the tests have hardcoded reference to build/src
 %:
-	dh $@
+	dh $@ --builddirectory=build
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		-DCMAKE_LIBRARY_PATH=$(DEB_HOST_MULTIARCH) \
+		-DCMAKE_BUILD_RPATH_USE_ORIGIN=ON \
 		-DCODE_COVERAGE=OFF \
 		$(empty)
 
+# terse test output, as we do not really want to see all those JSON dumps of SOFA files
+override_dh_auto_test: DEB_BUILD_OPTIONS += terse
+# no-parallel otherwise we are hitting test errors
 override_dh_auto_test:
-	# tests have been disabled, until we figure out how to make them not stall
-	@echo "skipping tests"
+	dh_auto_test --no-parallel
 
 override_dh_clean:
 	dh_clean
 	rm -f easy.tmp.json
 	rm -f src/config.h src/hrtf/mysofa_export.h
 
+DEB_COPYRIGHT_CHECK_IGNORE_REGEX = \
+        debian/.*|tests/.*\.sofa|tests/.*\.json\.bz2|share/MIT_KEMAR_normal_pinna\.sofa
+
+# licensecheck v1
+.PHONY: licensecheck
 licensecheck:
-	licensecheck --deb-machine -r * \
+	LANG=C.UTF-8 licensecheck \
+		-i "^($(DEB_COPYRIGHT_CHECK_IGNORE_REGEX))$$" \
+		--check '.*' --recursive --deb-machine --lines 0 * \
 		> debian/copyright_newhints
 	cmp debian/copyright_hints debian/copyright_newhints \
 		&& rm debian/copyright_newhints

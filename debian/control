@@ -4,11 +4,12 @@ Maintainer: Debian Multimedia Maintainers <debian-multimedia@lists.debian.org>
 Uploaders:
  IOhannes m zmölnig (Debian/GNU) <umlaeute@debian.org>,
 Build-Depends:
- debhelper-compat (= 13),
  cmake,
- zlib1g-dev | libz-dev,
+ debhelper-compat (= 13),
  libcunit1-dev,
-Standards-Version: 4.6.0
+ nodejs <!nocheck>,
+ zlib1g-dev | libz-dev,
+Standards-Version: 4.7.0
 Rules-Requires-Root: no
 Section: devel
 Homepage: https://github.com/hoene/libmysofa
@@ -40,8 +41,8 @@ Section: libs
 Architecture: any
 Multi-Arch: same
 Depends:
- ${shlibs:Depends},
  ${misc:Depends},
+ ${shlibs:Depends},
 Description: library to read HRTFs stored in the AES69-2015 SOFA format
  libmysofa is a light weight C-library intended to read SOFA (Spatially Oriented
  Format for Acoustics) files for spatial rendering.
@@ -59,8 +60,8 @@ Package: libmysofa-utils
 Architecture: any
 Section: utils
 Depends:
- ${shlibs:Depends},
  ${misc:Depends},
+ ${shlibs:Depends},
 Description: library to read HRTFs stored in the AES69-2015 SOFA format - utilities
  libmysofa is a light weight C-library intended to read SOFA (Spatially Oriented
  Format for Acoustics) files for spatial rendering.

@@ -1,0 +1,25 @@
+# Description: ignore tests which depend on non dfsg files that Debian
+# is removing from the tarball
+# Upstream: not-needed
+--- libmysofa.orig/CMakeLists.txt
++++ libmysofa/CMakeLists.txt
+@@ -59,8 +59,6 @@
+            ${PROJECT_SOURCE_DIR}/tests/latTestAziBeRTA_Resamp1_Fran.sofa)
+   add_test(D1_48K_24bit_0.3s_FIR_SOFA src/mysofa2json -o tmp.json
+            ${PROJECT_SOURCE_DIR}/tests/D1_48K_24bit_0.3s_FIR_SOFA.sofa)
+-  add_test(H20_44K_16bit_256tap_FIR_SOFA ${PROJECT_SOURCE_DIR}/tests/compareIgnoreNew.sh
+-           ${PROJECT_SOURCE_DIR}/tests/H20_44K_16bit_256tap_FIR_SOFA)
+   add_test(MIT_KEMAR_large_pinna ${PROJECT_SOURCE_DIR}/tests/compare.sh
+            ${PROJECT_SOURCE_DIR}/tests/MIT_KEMAR_large_pinna)
+   add_test(MIT_KEMAR_normal_pinna ${PROJECT_SOURCE_DIR}/tests/compareIgnoreNew.sh
+@@ -106,10 +104,6 @@
+            ${PROJECT_SOURCE_DIR}/tests/LISTEN_1002_IRC_1002_C_HRIR)
+   add_test(Pulse ${PROJECT_SOURCE_DIR}/tests/compare.sh ${PROJECT_SOURCE_DIR}/tests/Pulse)
+   add_test(Tester ${PROJECT_SOURCE_DIR}/tests/compare.sh ${PROJECT_SOURCE_DIR}/tests/tester)
+-  add_test(TU-Berlin_QU_KEMAR_anechoic_radius_0.5_1_2_3_m ${PROJECT_SOURCE_DIR}/tests/compare.sh
+-           ${PROJECT_SOURCE_DIR}/tests/TU-Berlin_QU_KEMAR_anechoic_radius_0.5_1_2_3_m)
+-  add_test(TU-Berlin_QU_KEMAR_anechoic_radius_0.5m ${PROJECT_SOURCE_DIR}/tests/compare.sh
+-           ${PROJECT_SOURCE_DIR}/tests/TU-Berlin_QU_KEMAR_anechoic_radius_0.5m)
+   add_test(example_dummy_sofa48 ${PROJECT_SOURCE_DIR}/tests/compare.sh
+            ${PROJECT_SOURCE_DIR}/tests/example_dummy_sofa48)
+   add_test(TestSOFA48_netcdf472 ${PROJECT_SOURCE_DIR}/tests/compare.sh
